@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Your models go here (copy the schema I provided earlier)
+model Customer {
+  id          String   @id @default(uuid())
+  firstName   String
+  middleName  String?
+  lastName    String
+  address     String?
+  email       String   @unique
+  phone       String   @unique
+  dateOfBirth DateTime
+  accounts    Account[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("customers")
+}
+
+model Account {
+  id        String   @id @default(uuid())
+  acctType  AccountType
+  balance   Float    @default(0)
+  openDate  DateTime @default(now())
+  status    AccountStatus @default(ACTIVE)
+  custId    String
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  customer   Customer     @relation(fields: [custId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@map("accounts")
+}
+
+model Transaction {
+  id           String          @id @default(uuid())
+  tranxDate    DateTime        @default(now())
+  tranxType    TransactionType
+  amount       Float
+  accountId    String
+  performedBy  String
+
+  account      Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  createdAt    DateTime        @default(now())
+
+  @@map("transactions")
+}
+
+enum AccountType {
+  SAVINGS
+  CHECKING
+  CREDIT
+  LOAN
+}
+
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+  CLOSED
+  SUSPENDED
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+}
