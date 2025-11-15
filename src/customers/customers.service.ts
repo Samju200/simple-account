@@ -28,8 +28,14 @@ export class CustomersService {
       );
     }
 
+    // Convert date string to DateTime
+    const customerData = {
+      ...createCustomerDto,
+      dateOfBirth: new Date(createCustomerDto.dateOfBirth),
+    };
+
     return this.prisma.customer.create({
-      data: createCustomerDto,
+      data: customerData,
     });
   }
 
@@ -72,6 +78,7 @@ export class CustomersService {
   async update(id: string, updateCustomerDto: UpdateCustomerDto) {
     await this.findOne(id);
 
+    // Check for duplicate email or phone
     if (updateCustomerDto.email || updateCustomerDto.phone) {
       const existingCustomer = await this.prisma.customer.findFirst({
         where: {
@@ -94,9 +101,19 @@ export class CustomersService {
       }
     }
 
+    // Remove undefined values and handle dateOfBirth separately
+    const { dateOfBirth, ...otherData } = updateCustomerDto;
+
+    const updateData: any = { ...otherData };
+
+    // Only include dateOfBirth in update if it's provided
+    if (dateOfBirth !== undefined) {
+      updateData.dateOfBirth = dateOfBirth ? new Date(dateOfBirth) : null;
+    }
+
     return this.prisma.customer.update({
       where: { id },
-      data: updateCustomerDto,
+      data: updateData,
     });
   }
 }

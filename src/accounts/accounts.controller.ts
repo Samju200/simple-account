@@ -9,13 +9,23 @@ import {
   ParseUUIDPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
-import { AccountStatus } from '@prisma/client';
+import { AccountStatus, User } from '@prisma/client';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { GetUser } from '../common/decorators/get-user-decorator';
+
+interface JwtUser {
+  firstName: string;
+}
 
 @Controller()
+@UseGuards(JwtAuthGuard) // Protect all routes in this controller
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
@@ -24,8 +34,10 @@ export class AccountsController {
   create(
     @Param('customerId', ParseUUIDPipe) customerId: string,
     @Body() createAccountDto: CreateAccountDto,
+    @GetUser() user: User, // Get the request object to access user info
   ) {
-    return this.accountsService.create(customerId, createAccountDto);
+    const createdBy: string = user.id; // Get user email from token
+    return this.accountsService.create(customerId, createAccountDto, createdBy);
   }
 
   @Get('customers/:customerId/accounts')
@@ -54,7 +66,14 @@ export class AccountsController {
     @Param('customerId', ParseUUIDPipe) customerId: string,
     @Param('accountId', ParseUUIDPipe) accountId: string,
     @Body() updateAccountDto: UpdateAccountDto,
+    @Req() req: Request & { user?: JwtUser },
   ) {
-    return this.accountsService.update(customerId, accountId, updateAccountDto);
+    const updatedBy: string = req.user?.firstName ?? 'system';
+    return this.accountsService.update(
+      customerId,
+      accountId,
+      updateAccountDto,
+      updatedBy,
+    );
   }
 }

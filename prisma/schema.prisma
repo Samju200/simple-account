@@ -13,7 +13,23 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      UserRole @default(ADMIN)
+  customer  Customer?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  @@map("users")
+}
+
+enum UserRole {
+  TELLER
+  MANAGER
+  ADMIN
+}
 // Your models go here (copy the schema I provided earlier)
 model Customer {
   id          String   @id @default(uuid())
@@ -24,6 +40,8 @@ model Customer {
   email       String   @unique
   phone       String   @unique
   dateOfBirth DateTime
+  userId      String?  @unique
+  user        User?    @relation(fields: [userId], references: [id])
   accounts    Account[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -32,19 +50,20 @@ model Customer {
 }
 
 model Account {
-  id        String   @id @default(uuid())
-  acctType  AccountType
-  balance   Float    @default(0)
-  openDate  DateTime @default(now())
-  status    AccountStatus @default(ACTIVE)
-  custId    String
-  createdBy String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  updatedBy String?
+  id            String         @id @default(uuid())
+  accountNumber String         @unique
+  acctType      AccountType
+  balance       Float          @default(0)
+  openDate      DateTime       @default(now())
+  status        AccountStatus  @default(ACTIVE)
+  custId        String
+  createdBy     String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  updatedBy     String?
 
-  customer   Customer     @relation(fields: [custId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
+  customer      Customer       @relation(fields: [custId], references: [id], onDelete: Cascade)
+  transactions  Transaction[]
 
   @@map("accounts")
 }

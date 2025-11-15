@@ -1,37 +1,95 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CustomersService } from '../customers/customers.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
-import { AccountStatus } from '@prisma/client';
+import { AccountStatus, AccountType } from '@prisma/client';
+import { AccountNumberGenerator } from '../common/utils/account-number.generator';
 
 @Injectable()
 export class AccountsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly customersService: CustomersService,
+    private readonly accountNumberGenerator: AccountNumberGenerator,
   ) {}
 
-  async create(customerId: string, createAccountDto: CreateAccountDto) {
+  async create(customerId: string, dto: CreateAccountDto, createdBy: string) {
     await this.customersService.findOne(customerId);
+    await this.checkDuplicateAccountType(customerId, dto.acctType);
+    return this.prisma.$transaction(async (tx) => {
+      const accountNumber =
+        await this.accountNumberGenerator.generateUniqueAccountNumberByType(
+          dto.acctType,
+        );
 
-    return this.prisma.account.create({
-      data: {
-        ...createAccountDto,
+      return tx.account.create({
+        data: {
+          ...dto,
+          accountNumber,
+          custId: customerId,
+          createdBy,
+        },
+        include: {
+          customer: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+        },
+      });
+    });
+  }
+  private async checkDuplicateAccountType(
+    customerId: string,
+    accountType: AccountType,
+  ): Promise<void> {
+    const existingAccount = await this.prisma.account.findFirst({
+      where: {
         custId: customerId,
+        acctType: accountType,
       },
+    });
+
+    if (existingAccount) {
+      throw new ConflictException(
+        `Customer already has an active ${accountType.toLowerCase()} account (Account #: ${existingAccount.accountNumber})`,
+      );
+    }
+  }
+
+  async findByAccountNumber(accountNumber: string) {
+    const account = await this.prisma.account.findUnique({
+      where: { accountNumber },
       include: {
         customer: {
           select: {
+            id: true,
             firstName: true,
             lastName: true,
             email: true,
+            phone: true,
           },
         },
       },
     });
+
+    if (!account) {
+      throw new NotFoundException(
+        `Account with number ${accountNumber} not found`,
+      );
+    }
+
+    return account;
   }
 
+  // Update other methods to include accountNumber in responses
   async findAllByCustomer(customerId: string, status?: AccountStatus) {
     await this.customersService.findOne(customerId);
 
@@ -78,6 +136,7 @@ export class AccountsService {
     return account;
   }
 
+  // ... rest of your methods remain the same
   async findOneByCustomer(customerId: string, accountId: string) {
     const account = await this.prisma.account.findFirst({
       where: {
@@ -110,15 +169,22 @@ export class AccountsService {
     customerId: string,
     accountId: string,
     updateAccountDto: UpdateAccountDto,
+    updatedBy?: string,
   ) {
     await this.findOneByCustomer(customerId, accountId);
 
+    const updateData: any = {
+      ...updateAccountDto,
+      updatedAt: new Date(),
+    };
+
+    if (updatedBy) {
+      updateData.updatedBy = updatedBy;
+    }
+
     return this.prisma.account.update({
       where: { id: accountId },
-      data: {
-        ...updateAccountDto,
-        updatedAt: new Date(),
-      },
+      data: updateData,
       include: {
         customer: {
           select: {

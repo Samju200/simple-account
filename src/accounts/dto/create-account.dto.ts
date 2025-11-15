@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, Min } from 'class-validator';
 import { AccountType } from '@prisma/client';
 
 export class CreateAccountDto {
@@ -9,7 +9,4 @@ export class CreateAccountDto {
   @IsNumber()
   @Min(0)
   balance?: number;
-
-  @IsString()
-  createdBy: string;
 }
