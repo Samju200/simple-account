@@ -6,6 +6,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Set global API prefix FIRST
+  app.setGlobalPrefix('api/v1');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -14,7 +17,7 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger configuration - SETUP BEFORE GLOBAL PREFIX
+  // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Simple Account System API')
     .setDescription(
@@ -36,19 +39,14 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
 
-  // Setup Swagger at the exact path you want
-  SwaggerModule.setup('api/v1/docs', app, document, {
+  // Use just 'docs' - it will automatically be prefixed with 'api/v1'
+  SwaggerModule.setup('docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
       tagsSorter: 'alpha',
       operationsSorter: 'alpha',
     },
     customSiteTitle: 'Simple Account API Documentation',
-  });
-
-  // Set global API prefix - EXCLUDE Swagger routes
-  app.setGlobalPrefix('api/v1', {
-    exclude: ['api/v1/docs', 'api/v1/docs-json', 'api/v1/docs/(.*)'],
   });
 
   await app.listen(3000);
