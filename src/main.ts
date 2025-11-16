@@ -51,7 +51,7 @@ async function bootstrap() {
   console.log('Simple Account API is running on: http://localhost:3000');
   console.log('API Base URL: http://localhost:3000/api/v1');
   console.log(
-    'Swagger documentation is available on: http://localhost:3000/api/docs',
+    'Swagger documentation is available on: http://localhost:3000/api/v1/docs',
   );
 }
 bootstrap();
