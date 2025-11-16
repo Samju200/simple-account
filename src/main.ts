@@ -1,13 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { writeFileSync } from 'fs';
-import { join } from 'path';
 import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Set global API prefix
   app.setGlobalPrefix('api/v1');
 
   app.useGlobalPipes(
@@ -18,22 +17,41 @@ async function bootstrap() {
     }),
   );
 
-  // Only generate swagger.json, do NOT serve Swagger UI in production
+  // Swagger configuration
   const config = new DocumentBuilder()
-    .setTitle('Simple Account API')
-    .setDescription('API Documentation')
+    .setTitle('Simple Account System API')
+    .setDescription(
+      'A comprehensive Simple Account System API with customer management, accounts, and transactions',
+    )
     .setVersion('1.0')
-    .addBearerAuth()
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-
-  // Save swagger.json to public folder
-  const outputPath = join(process.cwd(), 'public', 'swagger.json');
-  writeFileSync(outputPath, JSON.stringify(document, null, 2));
-  console.log('Swagger JSON generated:', outputPath);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha',
+    },
+    customSiteTitle: 'Simple Account API Documentation',
+  });
 
   await app.listen(3000);
+  console.log('Simple Account API is running on: http://localhost:3000');
+  console.log('API Base URL: http://localhost:3000/api/v1');
+  console.log(
+    'Swagger documentation is available on: http://localhost:3000/api/docs',
+  );
 }
-
 bootstrap();
