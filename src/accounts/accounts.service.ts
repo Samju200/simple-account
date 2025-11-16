@@ -292,8 +292,33 @@ export class AccountsService {
         throw new BadRequestException('Invalid amount provided');
       }
 
-      const updatedAccount = await this.prisma.account.update({
+      // First, verify the account exists and is active
+      const account = await this.prisma.account.findUnique({
         where: { id: accountId },
+      });
+
+      if (!account) {
+        throw new NotFoundException(`Account with ID ${accountId} not found`);
+      }
+
+      if (account.status !== AccountStatus.ACTIVE) {
+        throw new BadRequestException(
+          `Balance updates are only allowed on ACTIVE accounts. Current account status: ${account.status}`,
+        );
+      }
+
+      // Check if the update would result in negative balance
+      if (account.balance + amount < 0) {
+        throw new BadRequestException(
+          'Insufficient funds: balance cannot be negative',
+        );
+      }
+
+      const updatedAccount = await this.prisma.account.update({
+        where: {
+          id: accountId,
+          status: AccountStatus.ACTIVE, // Additional safety check
+        },
         data: {
           balance: { increment: amount },
           updatedAt: new Date(),
@@ -306,7 +331,10 @@ export class AccountsService {
         message: 'Account balance updated successfully',
       });
     } catch (error) {
-      if (error instanceof BadRequestException) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
         throw error;
       }
       throw new InternalServerErrorException(

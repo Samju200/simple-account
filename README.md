@@ -28,7 +28,12 @@ A comprehensive banking system API built with NestJS featuring customer manageme
 ## 🚀 Live Deployment
 
 - **API Base URL**: [https://simple-account-esl1.vercel.app/api/v1](https://simple-account-esl1.vercel.app/api/v1)
-- **API Documentation**: [https://simple-account-esl1.vercel.app/api/v1/docs](https://simple-account-esl1.vercel.app/api/v1/docs)
+- **API Documentation**: [https://documenter.getpostman.com/view/14522308/2sB3Wwpc9Z](https://documenter.getpostman.com/view/14522308/2sB3Wwpc9Z)
+
+## 🚀 Local Deployment
+
+- **API Base URL**: [http://localhost:3000/api/v1](http://localhost:3000/api/v1)
+- **API Documentation**: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
 
 ## 📋 API Features
 
