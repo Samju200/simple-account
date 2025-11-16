@@ -1,6 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateTransactionDto } from './create-transaction.dto';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { TransactionType } from '@prisma/client';
 
 export class UpdateTransactionDto extends PartialType(CreateTransactionDto) {
   @ApiPropertyOptional({
