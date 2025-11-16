@@ -338,7 +338,43 @@ export class AccountsController {
     );
   }
 
-  // In the controller, update the @ApiBody and method parameters:
+  @Put('accounts/:accountId/balance')
+  @ApiOperation({
+    summary: 'Update account balance',
+    description:
+      'Update the balance of a specific account by a given amount (deposit or withdrawal)',
+  })
+  @ApiParam({
+    name: 'accountId',
+    description: 'Account UUID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Account balance updated successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Account balance updated successfully',
+        data: {
+          id: 'account-uuid',
+          accountNumber: 'SAV00123456789',
+          acctType: 'SAVINGS',
+          balance: 1200.5,
+          status: 'ACTIVE',
+          custId: 'customer-uuid',
+          createdBy: 'user-uuid',
+          createdAt: '2023-01-01T00:00:00.000Z',
+          updatedAt: '2023-01-01T00:00:00.000Z',
+          customer: {
+            firstName: 'John',
+            lastName: 'Doe',
+            email: 'john.doe@example.com',
+          },
+        },
+      },
+    },
+  })
   @ApiBody({ type: UpdateBalanceDto })
   updateBalance(
     @Param('accountId', ParseUUIDPipe) accountId: string,
