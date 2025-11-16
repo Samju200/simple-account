@@ -44,11 +44,11 @@ async function bootstrap() {
       tagsSorter: 'alpha',
       operationsSorter: 'alpha',
     },
-    customSiteTitle: 'Banking API Documentation',
+    customSiteTitle: 'Simple Account API Documentation',
   });
 
   await app.listen(3000);
-  console.log('Banking System API is running on: http://localhost:3000');
+  console.log('Simple Account API is running on: http://localhost:3000');
   console.log('API Base URL: http://localhost:3000/api/v1');
   console.log(
     'Swagger documentation is available on: http://localhost:3000/api/docs',
