@@ -10,7 +10,6 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { Request } from 'express';
 import {
@@ -327,9 +326,9 @@ export class AccountsController {
     @Param('customerId', ParseUUIDPipe) customerId: string,
     @Param('accountId', ParseUUIDPipe) accountId: string,
     @Body() updateAccountDto: UpdateAccountDto,
-    @Req() req: Request & { user?: { id: string; firstName: string } },
+    @GetUser() user: User,
   ) {
-    const updatedBy: string = req.user?.firstName ?? 'system';
+    const updatedBy: string = user.id;
     return this.accountsService.update(
       customerId,
       accountId,
