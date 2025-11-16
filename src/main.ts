@@ -2,8 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { writeFileSync } from 'fs';
-import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -51,10 +49,6 @@ async function bootstrap() {
     });
   }
 
-  writeFileSync(
-    join(process.cwd(), 'public', 'swagger.json'),
-    JSON.stringify(document, null, 2),
-  );
   await app.listen(3000);
   console.log('Simple Account API is running on: http://localhost:3000');
   console.log('API Base URL: http://localhost:3000/api/v1');
