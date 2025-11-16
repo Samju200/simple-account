@@ -12,8 +12,9 @@ import {
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { TransactionType } from '@prisma/client';
+import { TransactionType, User } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { GetUser } from '../common/decorators/get-user-decorator';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -25,8 +26,15 @@ export class TransactionsController {
   create(
     @Param('accountId', ParseUUIDPipe) accountId: string,
     @Body() createTransactionDto: CreateTransactionDto,
+    @GetUser() user: User, // Get the authenticated user
   ) {
-    return this.transactionsService.create(accountId, createTransactionDto);
+    // Use user ID from JWT token instead of manual performedBy input
+    const performedBy = user.id;
+    return this.transactionsService.create(
+      accountId,
+      createTransactionDto,
+      performedBy,
+    );
   }
 
   @Get('accounts/:accountId/transactions')

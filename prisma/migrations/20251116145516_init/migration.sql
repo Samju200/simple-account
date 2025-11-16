@@ -1,11 +1,29 @@
 -- CreateEnum
-CREATE TYPE "AccountType" AS ENUM ('SAVINGS', 'CHECKING', 'CREDIT', 'LOAN');
+CREATE TYPE "UserRole" AS ENUM ('TELLER', 'MANAGER', 'ADMIN');
+
+-- CreateEnum
+CREATE TYPE "AccountType" AS ENUM ('SAVINGS', 'FIXED', 'CURRENT');
 
 -- CreateEnum
 CREATE TYPE "AccountStatus" AS ENUM ('ACTIVE', 'INACTIVE', 'CLOSED', 'SUSPENDED');
 
 -- CreateEnum
 CREATE TYPE "TransactionType" AS ENUM ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER');
+
+-- CreateTable
+CREATE TABLE "users" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "firstName" TEXT NOT NULL,
+    "middleName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "role" "UserRole" NOT NULL DEFAULT 'ADMIN',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "customers" (
@@ -26,6 +44,7 @@ CREATE TABLE "customers" (
 -- CreateTable
 CREATE TABLE "accounts" (
     "id" TEXT NOT NULL,
+    "accountNumber" TEXT NOT NULL,
     "acctType" "AccountType" NOT NULL,
     "balance" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "openDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -53,10 +72,16 @@ CREATE TABLE "transactions" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "customers_email_key" ON "customers"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "customers_phone_key" ON "customers"("phone");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "accounts_accountNumber_key" ON "accounts"("accountNumber");
 
 -- AddForeignKey
 ALTER TABLE "accounts" ADD CONSTRAINT "accounts_custId_fkey" FOREIGN KEY ("custId") REFERENCES "customers"("id") ON DELETE CASCADE ON UPDATE CASCADE;

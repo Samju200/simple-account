@@ -20,10 +20,6 @@ import { AccountStatus, User } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GetUser } from '../common/decorators/get-user-decorator';
 
-interface JwtUser {
-  firstName: string;
-}
-
 @Controller()
 @UseGuards(JwtAuthGuard) // Protect all routes in this controller
 export class AccountsController {
@@ -36,7 +32,10 @@ export class AccountsController {
     @Body() createAccountDto: CreateAccountDto,
     @GetUser() user: User, // Get the request object to access user info
   ) {
-    const createdBy: string = user.id; // Get user email from token
+    console.log('user:', user);
+    const createdBy: string = user.id;
+    console.log('createdBy:', createdBy);
+    // Get user email from token
     return this.accountsService.create(customerId, createAccountDto, createdBy);
   }
 
@@ -66,7 +65,7 @@ export class AccountsController {
     @Param('customerId', ParseUUIDPipe) customerId: string,
     @Param('accountId', ParseUUIDPipe) accountId: string,
     @Body() updateAccountDto: UpdateAccountDto,
-    @Req() req: Request & { user?: JwtUser },
+    @Req() req: Request & { user?: { id: string; firstName: string } },
   ) {
     const updatedBy: string = req.user?.firstName ?? 'system';
     return this.accountsService.update(
