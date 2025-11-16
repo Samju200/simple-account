@@ -21,78 +21,164 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+# Simple Account System API
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+A comprehensive banking system API built with NestJS featuring customer management, account operations, and transaction processing.
 
-## Project setup
+## 🚀 Live Deployment
 
-```bash
-$ yarn install
+- **API Base URL**: [https://simple-account-esl1.vercel.app/api/v1](https://simple-account-esl1.vercel.app/api/v1)
+- **API Documentation**: [https://simple-account-esl1.vercel.app/api/v1/docs](https://simple-account-esl1.vercel.app/api/v1/docs)
+
+## 📋 API Features
+
+### Authentication
+
+- User registration and login with JWT
+- Role-based access control (Admin, Manager, Teller)
+- Password management and profile handling
+
+### Customer Management
+
+- Create and manage customer profiles
+- Search and pagination
+- Contact information and personal details
+
+### Account Management
+
+- Create savings/checking accounts
+- Account status management (Active, Inactive, Suspended)
+- Balance tracking and updates
+
+### Transaction Processing
+
+- Deposit and withdrawal operations
+- Transaction history with filtering
+- Real-time balance updates
+- Insufficient funds validation
+
+## 🛠️ Technology Stack
+
+- **Framework**: NestJS 11
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT with Passport
+- **Documentation**: Swagger/OpenAPI
+- **Deployment**: Vercel
+- **Validation**: Class Validator & Class Transformer
+
+## 🔑 Authentication
+
+The API uses JWT Bearer authentication. Include the token in your requests:
+
+```http
+Authorization: Bearer your-jwt-token
 ```
 
-## Compile and run the project
+🏗️ Project Structure
+src/
+├── auth/ # Authentication module
+├── customers/ # Customer management
+├── accounts/ # Account operations
+├── transactions/ # Transaction processing
+├── common/ # Shared utilities & decorators
+└── prisma/ # Database configuration
 
-```bash
-# development
-$ yarn run start
+🔧 Project Setup
 
-# watch mode
+# Install dependencies
+
+$ yarn install
+
+# Development
+
 $ yarn run start:dev
 
-# production mode
+# Production build
+
+$ yarn run build
+
+# Production mode
+
 $ yarn run start:prod
-```
 
-## Run tests
+🧪 Running Tests
 
-```bash
 # unit tests
+
 $ yarn run test
 
 # e2e tests
+
 $ yarn run test:e2e
 
 # test coverage
+
 $ yarn run test:cov
-```
+📊 API Endpoints
+Authentication
+POST /auth/register - User registration
 
-## Deployment
+POST /auth/login - User login
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+POST /auth/logout - User logout
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+GET /auth/profile - Get user profile
 
-```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
-```
+PATCH /auth/change-password - Change password
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Customers
+POST /customers - Create customer (Admin/Manager)
 
-## Resources
+GET /customers - List customers (Admin/Manager/Teller)
 
-Check out a few resources that may come in handy when working with NestJS:
+GET /customers/:id - Get customer by ID
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+PUT /customers/:id - Update customer (Admin/Manager)
 
-## Support
+Accounts
+POST /customers/:customerId/accounts - Create account
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+GET /customers/:customerId/accounts - List customer accounts
 
-## Stay in touch
+GET /accounts/:id - Get account by ID
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+PUT /customers/:customerId/accounts/:accountId - Update account
 
-## License
+Transactions
+POST /accounts/:accountId/transactions - Create transaction
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+GET /accounts/:accountId/transactions - List account transactions
+
+GET /transactions/:id - Get transaction by ID
+
+🔒 Role-Based Access Control
+ADMIN: Full access to all operations
+
+MANAGER: Customer and account management
+
+TELLER: Read-only access to customers and transactions
+
+🌐 Deployment
+This application is deployed on Vercel with PostgreSQL database. For local development, set up your environment variables:
+
+env
+DATABASE_URL="your_postgresql_connection_string"
+JWT_SECRET="your_jwt_secret"
+NODE_ENV="development"
+
+📚 Resources
+Visit the NestJS Documentation to learn more about the framework.
+
+For questions and support, please visit our Discord channel.
+
+To dive deeper and get more hands-on experience, check out our official video courses.
+
+Deploy your application to AWS with the help of NestJS Mau in just a few clicks.
+
+Visualize your application graph and interact with the NestJS application in real-time using NestJS Devtools.
+
+🤝 Support
+Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please read more here.
+
+📄 License
+This project is MIT licensed.
