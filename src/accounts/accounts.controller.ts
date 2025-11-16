@@ -27,6 +27,7 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 import { AccountStatus, User } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GetUser } from '../common/decorators/get-user-decorator';
+import { UpdateBalanceDto } from './dto/update-balance.dto';
 
 @ApiTags('Accounts')
 @ApiBearerAuth('JWT-auth')
@@ -333,6 +334,21 @@ export class AccountsController {
       customerId,
       accountId,
       updateAccountDto,
+      updatedBy,
+    );
+  }
+
+  // In the controller, update the @ApiBody and method parameters:
+  @ApiBody({ type: UpdateBalanceDto })
+  updateBalance(
+    @Param('accountId', ParseUUIDPipe) accountId: string,
+    @Body() updateBalanceDto: UpdateBalanceDto,
+    @GetUser() user: User,
+  ) {
+    const updatedBy: string = user.id;
+    return this.accountsService.updateBalance(
+      accountId,
+      updateBalanceDto.amount,
       updatedBy,
     );
   }

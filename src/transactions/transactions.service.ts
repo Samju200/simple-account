@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { TransactionType } from '@prisma/client';
+import { AccountStatus, TransactionType } from '@prisma/client';
 import { APIResponse } from '../common/api/response.net';
 
 @Injectable()
@@ -45,11 +45,26 @@ export class TransactionsService {
       }
 
       if (tranxType === 'WITHDRAWAL') {
+        if (account.status !== AccountStatus.ACTIVE) {
+          throw new BadRequestException(
+            `Withdrawals are only allowed from ACTIVE accounts. Current account status: ${account.status}`,
+          );
+        }
         if (account.balance < createTransactionDto.amount) {
           throw new BadRequestException('Insufficient funds');
         }
       }
-
+      if (tranxType === 'DEPOSIT') {
+        // Allow deposits on ACTIVE and INACTIVE accounts, but not on CLOSED or SUSPENDED
+        if (
+          account.status === AccountStatus.CLOSED ||
+          account.status === AccountStatus.SUSPENDED
+        ) {
+          throw new BadRequestException(
+            `Cannot deposit to a ${account.status} account. Deposits are only allowed on ACTIVE and INACTIVE accounts.`,
+          );
+        }
+      }
       const result = await this.prisma.$transaction(async (tx) => {
         const transaction = await tx.transaction.create({
           data: {

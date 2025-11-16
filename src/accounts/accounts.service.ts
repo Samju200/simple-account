@@ -286,7 +286,7 @@ export class AccountsService {
     }
   }
 
-  async updateBalance(accountId: string, amount: number) {
+  async updateBalance(accountId: string, amount: number, updatedBy: string) {
     try {
       if (typeof amount !== 'number' || isNaN(amount)) {
         throw new BadRequestException('Invalid amount provided');
@@ -297,6 +297,7 @@ export class AccountsService {
         data: {
           balance: { increment: amount },
           updatedAt: new Date(),
+          updatedBy: updatedBy,
         },
       });
 
