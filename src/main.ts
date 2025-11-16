@@ -6,6 +6,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Set global API prefix
+  app.setGlobalPrefix('api/v1');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -30,12 +33,12 @@ async function bootstrap() {
         description: 'Enter JWT token',
         in: 'header',
       },
-      'JWT-auth', // This name should be used in @ApiBearerAuth('JWT-auth') in your controllers
+      'JWT-auth',
     )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document, {
+  SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
       tagsSorter: 'alpha',
@@ -46,8 +49,9 @@ async function bootstrap() {
 
   await app.listen(3000);
   console.log('Banking System API is running on: http://localhost:3000');
+  console.log('API Base URL: http://localhost:3000/api/v1');
   console.log(
-    'Swagger documentation is available on: http://localhost:3000/api',
+    'Swagger documentation is available on: http://localhost:3000/api/docs',
   );
 }
 bootstrap();

@@ -7,6 +7,7 @@ import {
 } from 'class-validator';
 import { UserRole } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
 export class RegisterDto {
   @ApiProperty({
@@ -32,6 +33,7 @@ export class RegisterDto {
   })
   @IsEnum(UserRole)
   @IsOptional()
+  @Transform(({ value }) => value.toUpperCase())
   role?: UserRole;
 
   @ApiProperty({

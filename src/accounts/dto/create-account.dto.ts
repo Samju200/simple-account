@@ -1,6 +1,7 @@
 import { IsEnum, IsNumber, IsOptional, Min } from 'class-validator';
 import { AccountType } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
 export class CreateAccountDto {
   @ApiProperty({
@@ -9,6 +10,9 @@ export class CreateAccountDto {
     description: 'Type of account to create',
   })
   @IsEnum(AccountType)
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.toUpperCase() : value,
+  )
   acctType: AccountType;
 
   @ApiPropertyOptional({
